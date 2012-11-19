@@ -1,4 +1,6 @@
-# Airbnb JavaScript Style Guide() {
+# MinnPost JavaScript Style Guide() {
+
+Borrowed from [AirBnB](https://github.com/airbnb/javascript).
 
 *A mostly reasonable approach to JavaScript*
 
