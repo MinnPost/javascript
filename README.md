@@ -27,11 +27,12 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
   1. [Constructors](#constructors)
   1. [Modules](#modules)
   1. [jQuery](#jquery)
-  1. [ES5 Compatability](#es5)
+  1. [ES5 Compatibility](#es5)
   1. [Testing](#testing)
   1. [Performance](#performance)
   1. [Resources](#resources)
   1. [In the Wild](#in-the-wild)
+  1. [Translation](#translation)
   1. [The JavaScript Style Guide Guide](#guide-guide)
   1. [Contributors](#contributors)
   1. [License](#license)
@@ -40,9 +41,9 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
 
   - **Primitives**: When you access a primitive type you work directly on its value
 
-    + `String`
-    + `Number`
-    + `Boolean`
+    + `string`
+    + `number`
+    + `boolean`
     + `null`
     + `undefined`
 
@@ -56,9 +57,9 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
     ```
   - **Complex**: When you access a complex type you work on a reference to its value
 
-    + `Object`
-    + `Array`
-    + `Function`
+    + `object`
+    + `array`
+    + `function`
 
     ```javascript
     var foo = [1, 2],
@@ -89,14 +90,14 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
     // bad
     var superman = {
       class: 'superhero',
-      default: { clark: kent },
+      default: { clark: 'kent' },
       private: true
     };
 
     // good
     var superman = {
       klass: 'superhero',
-      defaults: { clark: kent },
+      defaults: { clark: 'kent' },
       hidden: true
     };
     ```
@@ -114,7 +115,20 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
     var items = [];
     ```
 
-  - For [performance reasons](http://jsperf.com/array-direct-assignment-vs-push/5) use direct assignment over Array#push
+  - If you don't know array length use Array#push.
+
+    ```javascript
+    var someStack = [];
+
+
+    // bad
+    someStack[someStack.length] = 'abracadabra';
+
+    // good
+    someStack.push('abracadabra');
+    ```
+
+  - When you need to copy an array use Array#slice. [jsPerf](http://jsperf.com/converting-arguments-to-an-array/7)
 
     ```javascript
     var len = items.length,
@@ -123,12 +137,19 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
 
     // bad
     for (i = 0; i < len; i++) {
-      itemsCopy.push(items[i])
+      itemsCopy[i] = items[i];
     }
 
     // good
-    for (i = 0; i < len; i++) {
-      itemsCopy[i] = items[i];
+    itemsCopy = items.slice();
+    ```
+
+  - To convert an array-like object to an array, use Array#slice.
+
+    ```javascript
+    function trigger() {
+      var args = Array.prototype.slice.call(arguments);
+      ...
     }
     ```
 
@@ -147,13 +168,14 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
     var name = 'Bob Parr';
 
     // bad
-    var fullName = "Bob" + this.lastName;
+    var fullName = "Bob " + this.lastName;
 
     // good
-    var fullName = 'Bob' + this.lastName;
+    var fullName = 'Bob ' + this.lastName;
     ```
 
   - Strings longer than 80 characters should be written across multiple lines using string concatenation.
+  - Note: If overused, long strings with concatenation could impact performance. [jsPerf](http://jsperf.com/ya-string-concat) & [Discussion](https://github.com/airbnb/javascript/issues/40)
 
     ```javascript
     // bad
@@ -245,6 +267,7 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
     ```
 
   - Never declare a function in a non-function block (if, while, etc). Assign the function to a variable instead. Browsers will allow you to do it, but they all interpret it differently, which is bad news bears.
+  - **Note:** ECMA-262 defines a `block` as a list of statements. A function declaration is not a statement. [Read ECMA-262's note on this issue](http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf#page=97).
 
     ```javascript
     // bad
@@ -262,7 +285,7 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
     }
     ```
 
-  - Never name a parameter `arguments`, this will take precendence over the `arguments` object that is given to every function scope.
+  - Never name a parameter `arguments`, this will take precedence over the `arguments` object that is given to every function scope.
 
     ```javascript
     // bad
@@ -359,7 +382,8 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
     var items = getItems(),
         goSportsTeam = true,
         dragonball,
-        i, length;
+        length,
+        i;
     ```
 
   - Assign variables at the top of their scope. This helps avoid issues with variable declaration and assignment hoisting related issues.
@@ -443,7 +467,7 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
       var declaredButNotAssigned = true;
     }
 
-    // The interpretor is hoisting the variable
+    // The interpreter is hoisting the variable
     // declaration to the top of the scope.
     // Which means our example could be rewritten as:
     function example() {
@@ -453,7 +477,7 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
     }
     ```
 
-  - Anonymous function expression hoist their variable name, but not the function assignment.
+  - Anonymous function expressions hoist their variable name, but not the function assignment.
 
     ```javascript
     function example() {
@@ -655,6 +679,32 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
     }
     ```
 
+  - Prefixing your comments with `FIXME` or `TODO` helps other developers quickly understand if you're pointing out a problem that needs to be revisited, or if you're suggesting a solution to the problem that needs to be implemented. These are different than regular comments because they are actionable. The actions are `FIXME -- need to figure this out` or `TODO -- need to implement`.
+
+  - Use `// FIXME:` to annotate problems
+
+    ```javascript
+    function Calculator() {
+
+      // FIXME: shouldn't use a global here
+      total = 0;
+
+      return this;
+    }
+    ```
+
+  - Use `// TODO:` to annotate solutions to problems
+
+    ```javascript
+    function Calculator() {
+
+      // TODO: total should be configurable by an options param
+      this.total = 0;
+
+      return this;
+    }
+  ```
+
     **[[⬆]](#TOC)**
 
 
@@ -720,38 +770,38 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
 
     ```
 
-    **[[⬆]](#TOC)**
-
   - Use indentation when making long method chains.
 
-  ```javascript
-  // bad
-  $('#items').find('.selected').highlight().end().find('.open').updateCount();
+    ```javascript
+    // bad
+    $('#items').find('.selected').highlight().end().find('.open').updateCount();
 
-  // good
-  $('#items')
-    .find('.selected')
-      .highlight()
-      .end()
-    .find('.open')
-      .updateCount();
+    // good
+    $('#items')
+      .find('.selected')
+        .highlight()
+        .end()
+      .find('.open')
+        .updateCount();
 
-  // bad
-  var leds = stage.selectAll('.led').data(data).enter().append("svg:svg").class('led', true)
-      .attr('width',  (radius + margin) * 2).append("svg:g")
-      .attr("transform", "translate(" + (radius + margin) + "," + (radius + margin) + ")")
-      .call(tron.led);
+    // bad
+    var leds = stage.selectAll('.led').data(data).enter().append("svg:svg").class('led', true)
+        .attr('width',  (radius + margin) * 2).append("svg:g")
+        .attr("transform", "translate(" + (radius + margin) + "," + (radius + margin) + ")")
+        .call(tron.led);
 
-  // good
-  var leds = stage.selectAll('.led')
-      .data(data)
-    .enter().append("svg:svg")
-      .class('led', true)
-      .attr('width',  (radius + margin) * 2)
-    .append("svg:g")
-      .attr("transform", "translate(" + (radius + margin) + "," + (radius + margin) + ")")
-      .call(tron.led);
-  ```
+    // good
+    var leds = stage.selectAll('.led')
+        .data(data)
+      .enter().append("svg:svg")
+        .class('led', true)
+        .attr('width',  (radius + margin) * 2)
+      .append("svg:g")
+        .attr("transform", "translate(" + (radius + margin) + "," + (radius + margin) + ")")
+        .call(tron.led);
+    ```
+
+    **[[⬆]](#TOC)**
 
 ## <a name='leading-commas'>Leading Commas</a>
 
@@ -951,9 +1001,37 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
     // bad
     this.__firstName__ = 'Panda';
     this.firstName_ = 'Panda';
-    
+
     // good
     this._firstName = 'Panda';
+    ```
+
+  - When saving a reference to `this` use `_this`.
+
+    ```javascript
+    // bad
+    function() {
+      var self = this;
+      return function() {
+        console.log(self);
+      };
+    }
+
+    // bad
+    function() {
+      var that = this;
+      return function() {
+        console.log(that);
+      };
+    }
+
+    // good
+    function() {
+      var _this = this;
+      return function() {
+        console.log(_this);
+      };
+    }
     ```
 
   - Name your functions. This is helpful for stack traces.
@@ -1116,7 +1194,7 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
 
   - The module should start with a `!`. This ensures that if a malformed module forgets to include a final semicolon there aren't errors in production when the scripts get concatenated.
   - The file should be named with camelCase, live in a folder with the same name, and match the name of the single export.
-  - Add a method called noConflict() that sets the exported module to the previous version.
+  - Add a method called noConflict() that sets the exported module to the previous version and returns this one.
   - Always declare `'use strict';` at the top of the module.
 
     ```javascript
@@ -1128,11 +1206,12 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
       var previousFancyInput = global.FancyInput;
 
       function FancyInput(options) {
-        options || (options = {});
+        this.options = options || {};
       }
 
       FancyInput.noConflict = function noConflict() {
         global.FancyInput = previousFancyInput;
+        return FancyInput;
       };
 
       global.FancyInput = FancyInput;
@@ -1181,7 +1260,7 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
     }
     ```
 
-  - For DOM queries use Cascading `$('.sidebar ul')` or parent > child `$('.sidebar > .ul')`. [jsPerf](http://jsperf.com/jquery-find-vs-context-sel/16)
+  - For DOM queries use Cascading `$('.sidebar ul')` or parent > child `$('.sidebar > ul')`. [jsPerf](http://jsperf.com/jquery-find-vs-context-sel/16)
   - Use `find` with scoped jQuery object queries.
 
     ```javascript
@@ -1207,7 +1286,7 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
     **[[⬆]](#TOC)**
 
 
-## <a name='es5'>ECMAScript 5 Compatability</a>
+## <a name='es5'>ECMAScript 5 Compatibility</a>
 
   - Refer to [Kangax](https://twitter.com/kangax/)'s ES5 [compatibility table](http://kangax.github.com/es5-compat-table/)
 
@@ -1229,10 +1308,13 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
 
 ## <a name='performance'>Performance</a>
 
+  - [On Layout & Web Performance](http://kellegous.com/j/2013/01/26/layout-performance/)
   - [String vs Array Concat](http://jsperf.com/string-vs-array-concat/2)
   - [Try/Catch Cost In a Loop](http://jsperf.com/try-catch-in-loop-cost)
   - [Bang Function](http://jsperf.com/bang-function)
   - [jQuery Find vs Context, Selector](http://jsperf.com/jquery-find-vs-context-sel/13)
+  - [innerHTML vs textContent for script text](http://jsperf.com/innerhtml-vs-textcontent-for-script-text)
+  - [Long String Concatenation](http://jsperf.com/ya-string-concat)
   - Loading...
 
   **[[⬆]](#TOC)**
@@ -1251,6 +1333,11 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
   - [jQuery Core Style Guidelines](http://docs.jquery.com/JQuery_Core_Style_Guidelines)
   - [Principles of Writing Consistent, Idiomatic JavaScript](https://github.com/rwldrn/idiomatic.js/)
 
+**Other Styles**
+
+  - [Naming this in nested functions](https://gist.github.com/4135065) - Christian Johansen
+  - [Conditional Callbacks](https://github.com/airbnb/javascript/issues/52)
+
 **Books**
 
   - [JavaScript: The Good Parts](http://www.amazon.com/JavaScript-Good-Parts-Douglas-Crockford/dp/0596517742) - Douglas Crockford
@@ -1264,7 +1351,7 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
 
 **Blogs**
 
-  - [DailyJS](//dailyjs.com)
+  - [DailyJS](http://dailyjs.com/)
   - [JavaScript Weekly](http://javascriptweekly.com/)
   - [JavaScript, JavaScript...](http://javascriptweblog.wordpress.com/)
   - [Bocoup Weblog](http://weblog.bocoup.com/)
@@ -1282,13 +1369,31 @@ Borrowed from [AirBnB](https://github.com/airbnb/javascript).
 
   This is a list of organizations that are using this style guide. Send us a pull request or open an issue and we'll add you to the list.
 
-  - **Airbnb**: [airbnb/javascript](//github.com/airbnb/javascript)
-  - **American Insitutes for Research**: [AIRAST/javascript](//github.com/AIRAST/javascript)
-  - **Shutterfly**: [shutterfly/javascript](//github.com/shutterfly/javascript)
+  - **Airbnb**: [airbnb/javascript](https://github.com/airbnb/javascript)
+  - **American Insitutes for Research**: [AIRAST/javascript](https://github.com/AIRAST/javascript)
+  - **ExactTarget**: [ExactTarget/javascript](https://github.com/ExactTarget/javascript)
+  - **GeneralElectric**: [GeneralElectric/javascript](https://github.com/GeneralElectric/javascript)
+  - **GoodData**: [gooddata/gdc-js-style](https://github.com/gooddata/gdc-js-style)
+  - **How About We**: [howaboutwe/javascript](https://github.com/howaboutwe/javascript)
+  - **MinnPost**: [MinnPost/javascript](https://github.com/MinnPost/javascript)
+  - **ModCloth**: [modcloth/javascript](https://github.com/modcloth/javascript)
+  - **National Geographic**: [natgeo/javascript](https://github.com/natgeo/javascript)
+  - **Razorfish**: [razorfish/javascript-style-guide](https://github.com/razorfish/javascript-style-guide)
+  - **Shutterfly**: [shutterfly/javascript](https://github.com/shutterfly/javascript)
+  - **Userify**: [userify/javascript](https://github.com/userify/javascript)
+  - **Zillow**: [zillow/javascript](https://github.com/zillow/javascript)
+
+## <a name='translation'>Translation</a>
+
+  This style guide is also available in other languages:
+
+  - :de: **German**: [timofurrer/javascript-style-guide](https://github.com/timofurrer/javascript-style-guide)
+  - :jp: **Japanese**: [mitsuruog/javacript-style-guide](https://github.com/mitsuruog/javacript-style-guide)
+  - :br: **Portuguese**: [armoucar/javascript-style-guide](https://github.com/armoucar/javascript-style-guide)
 
 ## <a name='guide-guide'>The JavaScript Style Guide Guide</a>
 
-  - [Reference](//github.com/airbnb/javascript/wiki/The-JavaScript-Style-Guide-Guide)
+  - [Reference](https://github.com/airbnb/javascript/wiki/The-JavaScript-Style-Guide-Guide)
 
 ## <a name='authors'>Contributors</a>
 
